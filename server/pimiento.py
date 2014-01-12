@@ -6,7 +6,6 @@
 import RPi.GPIO as GPIO # always needed with RPi.GPIO
 from time import sleep  # pull in the sleep function from time module
 import colorsys # for color math
-from utils import *
 
 import firebasin
 
@@ -16,6 +15,25 @@ DEVICE_ID = 0
 RED_PIN   = 17
 GREEN_PIN = 22
 BLUE_PIN  = 23
+
+# Helpers
+def do_rgb(r,g,b):
+    r /= 255
+    g /= 255
+    b /= 255
+
+    red.ChangeDutyCycle(r*100)
+    green.ChangeDutyCycle(g*100)
+    blue.ChangeDutyCycle(b*100)
+
+def handle_update(snapshot):
+    data = snapshot.val()
+
+    r = data['red']['value']
+    g = data['green']['value']
+    b = data['blue']['value']
+
+    do_rgb(r,g,b)
 
 # Setup GPIO
 GPIO.setmode(GPIO.BCM)
