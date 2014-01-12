@@ -18,9 +18,9 @@ BLUE_PIN  = 23
 
 # Helpers
 def do_rgb(r,g,b):
-    r /= 255
-    g /= 255
-    b /= 255
+    r /= 255.0
+    g /= 255.0
+    b /= 255.0
 
     red.ChangeDutyCycle(r*100)
     green.ChangeDutyCycle(g*100)
@@ -29,9 +29,11 @@ def do_rgb(r,g,b):
 def handle_update(snapshot):
     data = snapshot.val()
 
-    r = data['red']['value']
-    g = data['green']['value']
-    b = data['blue']['value']
+    print data
+
+    r = float(data['red'].get('value', 0))
+    g = float(data['green'].get('value', 0))
+    b = float(data['blue'].get('value', 0))
 
     do_rgb(r,g,b)
 
@@ -57,6 +59,9 @@ try:
     root = firebasin.Firebase(FIREBASE_ROOT)
 
     root.child('devices/%s' % DEVICE_ID).on('value', handle_update)
+
+    while True:
+        1 + 1    	
 
 except KeyboardInterrupt:
     red.stop()            # stop the white PWM output
