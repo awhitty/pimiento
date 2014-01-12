@@ -16,15 +16,35 @@ RED_PIN   = 17
 GREEN_PIN = 22
 BLUE_PIN  = 23
 
+r_value = 0.0
+g_value = 0.0
+b_value = 0.0
+
 # Helpers
 def do_rgb(r,g,b):
     r /= 255.0
     g /= 255.0
     b /= 255.0
 
-    red.ChangeDutyCycle(r*100)
-    green.ChangeDutyCycle(g*100)
-    blue.ChangeDutyCycle(b*100)
+    r *= 100
+    g *= 100
+    b *= 100
+
+    r_step = (r-r_value)/100
+    g_step = (g-g_value)/100
+    b_step = (g-g_value)/100
+
+    for i in range(0,101):
+	red.ChangeDutyCycle(r_value)
+        green.ChangeDutyCycle(g_value)
+        blue.ChangeDutyCycle(b_value)
+
+        r_value += r_step
+        b_value += b_step
+        g_value += g_step
+
+        sleep(0.02)
+
 
 def handle_update(snapshot):
     data = snapshot.val()
@@ -48,9 +68,9 @@ red   = GPIO.PWM(RED_PIN, 100)
 green = GPIO.PWM(GREEN_PIN, 100)
 blue  = GPIO.PWM(BLUE_PIN, 100) 
 
-red.start(0)
-green.start(0)
-blue.start(0)
+red.start(r_value)
+green.start(g_value)
+blue.start(b_value)
 
 # pause_time = 0.02           # you can change this to slow down/speed up
 
