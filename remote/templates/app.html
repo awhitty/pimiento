@@ -1,0 +1,17 @@
+<nav-page id="app-page" class="customstyle" my-channels="boundChannels">
+  <content style="background-color: {{bgstyle}};">
+      <div class="list color-selector">
+        <div class="item range range-positive" 
+          ng-repeat="channel in boundChannels" 
+          ng-class="{
+            'Blue': 'range-positive', 
+            'Red': 'range-assertive', 
+            'Green': 'range-balanced'
+          }[channel.color]">
+          <i class="icon ion-ios7-minus-outline"></i>
+          <input type="range" name="level" min="0" max="1" step="0.001" ng-model="channel.value">
+          <i class="icon ion-ios7-plus-outline"></i>
+        </div>
+      </div>
+  </content>
+</nav-page>
