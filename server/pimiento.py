@@ -16,35 +16,24 @@ RED_PIN   = 17
 GREEN_PIN = 22
 BLUE_PIN  = 23
 
-r_value = 0.0
-g_value = 0.0
-b_value = 0.0
+global color = {
+    'red': 0,
+    'green': 0,
+    'blue': 0
+}
 
 # Helpers
-def do_rgb(r,g,b):
-    r /= 255.0
-    g /= 255.0
-    b /= 255.0
-
-    r *= 100
-    g *= 100
-    b *= 100
-
-    r_step = (r-r_value)/100
-    g_step = (g-g_value)/100
-    b_step = (g-g_value)/100
+def fade_to_rgb(r, g, b):
+    red_step   = (r-color['red'])/100
+    green_step = (g-color['green'])/100
+    blue_step  = (b-color['blue'])/100
 
     for i in range(0,101):
-	red.ChangeDutyCycle(r_value)
-        green.ChangeDutyCycle(g_value)
-        blue.ChangeDutyCycle(b_value)
-
-        r_value += r_step
-        b_value += b_step
-        g_value += g_step
+        color['red'] += red_step
+        color['green'] += green_step
+        color['blue'] += blue_step
 
         sleep(0.02)
-
 
 def handle_update(snapshot):
     data = snapshot.val()
@@ -55,7 +44,7 @@ def handle_update(snapshot):
     g = float(data['green'].get('value', 0))
     b = float(data['blue'].get('value', 0))
 
-    do_rgb(r,g,b)
+    fade_to_rgb(r,g,b)
 
 # Setup GPIO
 GPIO.setmode(GPIO.BCM)
