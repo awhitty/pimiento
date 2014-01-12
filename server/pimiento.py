@@ -7,47 +7,59 @@ import RPi.GPIO as GPIO # always needed with RPi.GPIO
 from time import sleep  # pull in the sleep function from time module
 import colorsys # for color math
 
-GPIO.setmode(GPIO.BCM)  # choose BCM or BOARD numbering schemes. I use BCM
+import firebasin
 
-R_PIN = 17
-G_PIN = 22
-B_PIN = 23
+FIREBASE_ROOT = "https://pimiento.firebaseio.com"
+DEVICE_ID = 0
 
+RED_PIN   = 17
+GREEN_PIN = 22
+BLUE_PIN  = 23
 
-GPIO.setup(R_PIN, GPIO.OUT)# set GPIO R_PIN as output for white led
-GPIO.setup(G_PIN, GPIO.OUT)# set GPIO G_PIN as output for red led
-GPIO.setup(B_PIN, GPIO.OUT)# set GPIO G_PIN as output for red led
+# Setup GPIO
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(RED_PIN, GPIO.OUT)
+GPIO.setup(GREEN_PIN, GPIO.OUT)
+GPIO.setup(BLUE_PIN, GPIO.OUT)
 
-red = GPIO.PWM(R_PIN, 100)    # create object white for PWM on port 25 at 100 Hertz
-green = GPIO.PWM(G_PIN, 100)      # create object red for PWM on port G_PIN at 100 Hertz
-blue = GPIO.PWM(B_PIN, 100)      # create object red for PWM on port B_PIN at 100 Hertz
+# Create PWM objects
+red   = GPIO.PWM(RED_PIN, 100)  
+green = GPIO.PWM(GREEN_PIN, 100)
+blue  = GPIO.PWM(BLUE_PIN, 100) 
 
-r, g, b = colorsys.hsv_to_rgb(0, 1, 0.5)
-red.start(r*100)              # start white led on 0 percent duty cycle (off)
-green.start(g*100)              # red fully on (100%)
-blue.start(b*100)              # red fully on (100%)
+red.start(0)
+green.start(0)
+blue.start(0)
 
-# now the fun starts, we'll vary the duty cycle to 
-# dim/brighten the leds, so one is bright while the other is dim
-
-pause_time = 0.02           # you can change this to slow down/speed up
+# pause_time = 0.02           # you can change this to slow down/speed up
 
 try:
-    print "Starting..."
-    i = 0.0
-    while True:
-        r, g, b = colorsys.hsv_to_rgb(i, 1, 0.5)
+    # Setup Firebase
+    root = firebasin.Firebase(FIREBASE_ROOT)
 
-        red.ChangeDutyCycle(r*100)
-        green.ChangeDutyCycle(g*100)
-        blue.ChangeDutyCycle(b*100)
-
-        i += 0.005
-
-        sleep(pause_time)
+    root.child('devices/%s' % DEVICE_ID).on('value', handle_update)
 
 except KeyboardInterrupt:
     red.stop()            # stop the white PWM output
     green.stop()              # stop the red PWM output
     blue.stop()
     GPIO.cleanup()          # clean up GPIO on CTRL+C exit
+
+
+def handle_update(snapshot):
+    data = snapshot.val()
+
+    r = data['red']['value']
+    g = data['green']['value']
+    b = data['blue']['value']
+
+    do_rgb(r,g,b)
+
+def do_rgb(r,g,b):
+    r /= 255
+    g /= 255
+    b /= 255
+
+    red.ChangeDutyCycle(r*100)
+    green.ChangeDutyCycle(g*100)
+    blue.ChangeDutyCycle(b*100)
