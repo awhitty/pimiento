@@ -6,6 +6,7 @@
 import RPi.GPIO as GPIO # always needed with RPi.GPIO
 from time import sleep  # pull in the sleep function from time module
 import colorsys # for color math
+from utils import *
 
 import firebasin
 
@@ -44,22 +45,3 @@ except KeyboardInterrupt:
     green.stop()              # stop the red PWM output
     blue.stop()
     GPIO.cleanup()          # clean up GPIO on CTRL+C exit
-
-
-def handle_update(snapshot):
-    data = snapshot.val()
-
-    r = data['red']['value']
-    g = data['green']['value']
-    b = data['blue']['value']
-
-    do_rgb(r,g,b)
-
-def do_rgb(r,g,b):
-    r /= 255
-    g /= 255
-    b /= 255
-
-    red.ChangeDutyCycle(r*100)
-    green.ChangeDutyCycle(g*100)
-    blue.ChangeDutyCycle(b*100)
